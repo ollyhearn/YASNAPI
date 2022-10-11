@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, make_response
 from db.models import db, UserModel
 from safety.token_validation import token_required
 from safety.key import secret_key
@@ -13,7 +13,10 @@ def root():
 
 @auth_b.route("/login", methods=["POST"])
 def login():
-	if request.form['username'] and request.form['password']:
+	username = request.form['username']
+	password = request.form['password']
+	data = UserModel.query.filter_by(username=username).first()
+	if username and password and data and data.username == username and data.password == password:
 		session['logged_in'] = True
 		token = jwt.encode({
 			'username': request.form['username'],
@@ -27,12 +30,29 @@ def login():
 def register():
 	username = request.form['username']
 	password = request.form['password']
-	new_user = UserModel(username, password)
-	db.session.add(new_user)
-	db.session.commit()
-	return "User registered", 200
+	if UserModel.query.filter_by(username=username).first() == None:
+		new_user = UserModel(username, password)
+		db.session.add(new_user)
+		db.session.commit()
+		session['logged_in'] = True
+		token = jwt.encode({
+			'username': request.form['username'],
+			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
+		}, secret_key)
+		return jsonify({'token': token})
+	else:
+		return make_response('User with this username already exists', 403, {'WWW-Authenticate': 'Basic realm: "Registration Failed "'})
 
-@auth_b.route("/check", methods=["POST"])
+@auth_b.route("/logoff", methods=["GET"])
+def logoff():
+	try:
+		if session['logged_in']:
+			session['logged_in'] = False
+	except:
+		pass
+	return make_response('Logged off', 200, {'WWW-Authenticate': 'Basic realm: "Logged off"'})
+
+@auth_b.route("/check", methods=["GET"])
 @token_required
 def check():
 	return "You are in!", 200
