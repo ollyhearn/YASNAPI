@@ -10,3 +10,11 @@ CREATE TABLE IF NOT EXISTS profiles (
 	name TEXT,
 	age INT
 );
+
+CREATE TABLE auth (
+	id SERIAL PRIMARY KEY,
+	owner INT NOT NULL,
+	title TEXT,
+	text TEXT,
+	created TIMESTAMP
+);

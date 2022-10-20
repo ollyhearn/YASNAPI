@@ -19,6 +19,7 @@ def login():
 	if username and password and data and data.username == username and data.password == password:
 		session['logged_in'] = True
 		token = jwt.encode({
+			'id': data.id,
 			'username': request.form['username'],
 			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
 		}, secret_key)
@@ -40,6 +41,7 @@ def register():
 		db.session.commit()
 		session['logged_in'] = True
 		token = jwt.encode({
+			'id': data.id,
 			'username': request.form['username'],
 			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
 		}, secret_key)
