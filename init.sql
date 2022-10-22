@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 	age INT
 );
 
-CREATE TABLE auth (
+CREATE TABLE post (
 	id SERIAL PRIMARY KEY,
 	owner INT NOT NULL,
 	title TEXT,

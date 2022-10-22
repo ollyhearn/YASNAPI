@@ -20,7 +20,7 @@ def login():
 		session['logged_in'] = True
 		token = jwt.encode({
 			'id': data.id,
-			'username': request.form['username'],
+			'username': data.username,
 			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
 		}, secret_key)
 		return jsonify({'token': token}) # jwt.decode(token, key=secret_key, algorithms="HS256")
@@ -54,6 +54,7 @@ def logoff():
 	try:
 		if session['logged_in']:
 			session['logged_in'] = False
+			session.set_cookie('sessionID', '', expires=0)
 	except:
 		pass
 	return make_response('Logged off', 200, {'WWW-Authenticate': 'Basic realm: "Logged off"'})
