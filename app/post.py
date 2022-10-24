@@ -18,6 +18,14 @@ def index():
 			return jsonify({'Message': 'Post not found'}), 403
 	return "OK", 200
 
+@post_b.route("/fetch", methods=["GET"])
+def fetchten():
+	posts = PostModel.query.all()
+	response = {}
+	for post in posts:
+		response[post.as_dict()['id']] = post.as_dict()
+	return response
+
 @token_required
 @post_b.route("/newpost", methods=["POST"])
 def newpost():
@@ -30,5 +38,3 @@ def newpost():
 	db.session.add(new_post)
 	db.session.commit()
 	return jsonify({'Message': 'Post created'}), 200
-
-
