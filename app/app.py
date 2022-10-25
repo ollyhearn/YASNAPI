@@ -3,7 +3,9 @@ import config
 from flask_sqlalchemy import SQLAlchemy
 
 from auth import auth_b
-from db.models import db, UserModel
+from profile import profile_b
+from post import post_b
+from db.models import db, AuthModel
 
 app = Flask(__name__)
 app.config.from_object(config.Configuration)
@@ -11,6 +13,8 @@ app.config.from_object(config.Configuration)
 db.init_app(app)
 
 app.register_blueprint(auth_b, url_prefix="/auth")
+app.register_blueprint(profile_b, url_prefix="/profile")
+app.register_blueprint(post_b, url_prefix="/post")
 
 @app.route('/', methods=["GET", "POST"])
 def root():

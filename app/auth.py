@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session, make_response
-from db.models import db, UserModel
+from db.models import db, AuthModel, ProfileModel
 from safety.token_validation import token_required
 from safety.key import secret_key
 import jwt
@@ -15,11 +15,12 @@ def root():
 def login():
 	username = request.form['username']
 	password = request.form['password']
-	data = UserModel.query.filter_by(username=username).first()
+	data = AuthModel.query.filter_by(username=username).first()
 	if username and password and data and data.username == username and data.password == password:
 		session['logged_in'] = True
 		token = jwt.encode({
-			'username': request.form['username'],
+			'id': data.id,
+			'username': data.username,
 			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
 		}, secret_key)
 		return jsonify({'token': token}) # jwt.decode(token, key=secret_key, algorithms="HS256")
@@ -30,12 +31,17 @@ def login():
 def register():
 	username = request.form['username']
 	password = request.form['password']
-	if UserModel.query.filter_by(username=username).first() == None:
-		new_user = UserModel(username, password)
+	if AuthModel.query.filter_by(username=username).first() == None:
+		new_user = AuthModel(username, password)
 		db.session.add(new_user)
+		db.session.commit()
+		data = AuthModel.query.filter_by(username=username).first()
+		new_profile = ProfileModel(data.id, username)
+		db.session.add(new_profile)
 		db.session.commit()
 		session['logged_in'] = True
 		token = jwt.encode({
+			'id': data.id,
 			'username': request.form['username'],
 			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
 		}, secret_key)
@@ -48,6 +54,7 @@ def logoff():
 	try:
 		if session['logged_in']:
 			session['logged_in'] = False
+			session.set_cookie('sessionID', '', expires=0)
 	except:
 		pass
 	return make_response('Logged off', 200, {'WWW-Authenticate': 'Basic realm: "Logged off"'})
