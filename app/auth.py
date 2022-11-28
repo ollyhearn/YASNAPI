@@ -13,8 +13,12 @@ def root():
 
 @auth_b.route("/login", methods=["POST"])
 def login():
-	username = request.form['username']
-	password = request.form['password']
+	json_data = request.get_json()
+	try:
+		username = json_data['username']
+		password = json_data['password']
+	except KeyError:
+		return make_response('Not enough data provided', 403, {'WWW-Authenticate': 'Basic realm: "Not enough data"'})
 	data = AuthModel.query.filter_by(username=username).first()
 	if username and password and data and data.username == username and data.password == password:
 		session['logged_in'] = True
@@ -29,8 +33,12 @@ def login():
 
 @auth_b.route("/register", methods=["POST"])
 def register():
-	username = request.form['username']
-	password = request.form['password']
+	json_data = request.get_json()
+	try:
+		username = json_data['username']
+		password = json_data['password']
+	except KeyError:
+		return make_response('Not enough data provided', 403, {'WWW-Authenticate': 'Basic realm: "Not enough data"'})
 	if AuthModel.query.filter_by(username=username).first() == None:
 		new_user = AuthModel(username, password)
 		db.session.add(new_user)

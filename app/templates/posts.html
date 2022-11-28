@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block posts %}
+	<div class="post" id="protopost">
+		<p class="post-header" id="post-header">Постов нет!</p>
+		<p class="post-text" id="post-text">Будь первым, напиши пост!</p>
+	</div>
+{% endblock %}
+
+{% block additional_scripts %}
+	<script type="text/javascript" src="{{ url_for('static', filename='postloader.js') }}"></script>
+{% endblock %}

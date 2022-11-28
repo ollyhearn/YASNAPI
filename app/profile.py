@@ -7,37 +7,34 @@ from datetime import datetime, timedelta
 
 profile_b = Blueprint("profile", __name__)
 
-@profile_b.route("/", methods=["GET", "POST"])
-def root():
-	return "OK", 200
-
 @token_required
-@profile_b.route("/myprofile", methods=["GET"])
+@profile_b.route("/", methods=["GET"])
 def myprofile():
 	data = jwt.decode(request.headers.get('token'), secret_key, algorithms="HS256")
 	profile_data = ProfileModel.query.filter_by(username=data['username']).first()
 	return jsonify(profile_data.as_dict()), 200
 
 @token_required
-@profile_b.route("/updateprofile", methods=["POST"])
+@profile_b.route("/", methods=["PATCH"])
 def updateprofile():
-	age = request.form.get('age', None)
-	name = request.form.get('name', None)
+	json_data = request.get_json()
+	try:
+		age = json_data['age']
+		name = json_data['name']
+	except KeyError:
+		return jsonify({'Message': 'No data specified'}), 403
 	data = jwt.decode(request.headers.get('token'), secret_key, algorithms="HS256")
 	profile = ProfileModel.query.filter_by(username=data['username']).first()
-	if not age and not name:
-		return jsonify({'Message': 'No data specified'}), 403
-	if age:
-		profile.age = age
-	if name:
-		profile.name = name
+	profile.age = age
+	profile.name = name
 	db.session.commit()
 	return jsonify({'Message': 'Data updated'}), 403
 
 @token_required
-@profile_b.route("/deleteprofile", methods=["DELETE"])
+@profile_b.route("/", methods=["DELETE"])
 def deleteprofile():
 	data = jwt.decode(request.headers.get('token'), secret_key, algorithms="HS256")
 	profile = ProfileModel.query.filter_by(id=data['id']).first()
 	db.session.delete(profile)
+	db.session.commit()
 	return jsonify({'Message': 'Profile deleted'}), 200

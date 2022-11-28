@@ -10,3 +10,5 @@ class Configuration(object):
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 	SQLALCHEMY_DATABASE_URI = f'postgresql://{user}:{pwd}@postgres.dev:5432/{dbname}'
 	SECRET_KEY = secret_key
+	UPLOAD_FOLDER = "/saved"
+	MAX_CONTENT_LENGTH = 16 * 1024 * 1024 # 500MB

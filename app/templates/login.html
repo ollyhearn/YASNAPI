@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block posts %}
+	<div class="post" id="login-form">
+		<p class="post-header" id="post-header">Используй свои данные для входа в YASNAPI</p>
+		<div class="auth-form">
+			<input type="text" id="username-field" name="username" placeholder="Юзернейм"><br>
+			<input type="password" id="password-field" name="password" placeholder="Пароль"><br>
+			<input type="button" value="Логин" onclick="form_submitted()">
+			<p id="message-box"></p>
+		<div>
+	</div>
+{% endblock %}
+
+{% block additional_scripts %}
+	<script type="text/javascript" src="{{ url_for('static', filename='loginscript.js') }}"></script>
+{% endblock %}
