@@ -24,8 +24,16 @@ function parseJwt (token) {
     return JSON.parse(jsonPayload);
 }
 
+function setCookie(cname, cvalue, exdays) {
+	const d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	let expires = "expires="+ d.toUTCString();
+	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+
 var token = getCookie("token")
-if (token) {
+if (token && token != "None") {
 	let xhr = new XMLHttpRequest();
 	let url = "/auth/check";
 	xhr.open("GET", url, true);
@@ -35,11 +43,20 @@ if (token) {
 	xhr.onreadystatechange = function () {
 		if (xhr.readyState === 4) {
 			if (xhr.status === 200) {
-				document.getElementById('register-button').remove()
 				var butt = document.getElementById('login-button')
 				butt.innerHTML = parseJwt(token).username
 				butt.setAttribute('href', "/web/profile")
+				butt = document.getElementById('register-button')
+				butt.innerHTML = "Выйти"
+				butt.setAttribute('href', "#")
+				butt.setAttribute('onclick', 'exit()')
 			}
 		}
 	}
+}
+
+function exit() {
+	alert("exit")
+	// document.cookie = "token=None;"
+	// window.location = "/web"
 }

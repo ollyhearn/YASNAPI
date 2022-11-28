@@ -13,11 +13,11 @@ def root():
 
 @auth_b.route("/login", methods=["POST"])
 def login():
-	json_data = request.get_json()
 	try:
+		json_data = request.get_json()
 		username = json_data['username']
 		password = json_data['password']
-	except KeyError:
+	except:
 		return make_response('Not enough data provided', 403, {'WWW-Authenticate': 'Basic realm: "Not enough data"'})
 	data = AuthModel.query.filter_by(username=username).first()
 	if username and password and data and data.username == username and data.password == password:
@@ -33,12 +33,12 @@ def login():
 
 @auth_b.route("/register", methods=["POST"])
 def register():
-	json_data = request.get_json()
 	try:
+		json_data = request.get_json()
 		username = json_data['username']
 		password = json_data['password']
-	except KeyError:
-		return make_response('Not enough data provided', 403, {'WWW-Authenticate': 'Basic realm: "Not enough data"'})
+	except:
+		return make_response('Not enough data provided', 402, {'WWW-Authenticate': 'Basic realm: "Not enough data"'})
 	if AuthModel.query.filter_by(username=username).first() == None:
 		new_user = AuthModel(username, password)
 		db.session.add(new_user)
@@ -50,12 +50,12 @@ def register():
 		session['logged_in'] = True
 		token = jwt.encode({
 			'id': data.id,
-			'username': request.form['username'],
+			'username': username,
 			'expiration': str(datetime.utcnow() + timedelta(seconds=3600))
 		}, secret_key)
-		return jsonify({'token': token})
+		return jsonify({'token': token}), 200
 	else:
-		return make_response('User with this username already exists', 403, {'WWW-Authenticate': 'Basic realm: "Registration Failed "'})
+		return make_response('Username is unavailiable', 403, {'WWW-Authenticate': 'Basic realm: "Authentication Failed "'})
 
 @auth_b.route("/logoff", methods=["GET"])
 def logoff():

@@ -22,6 +22,9 @@ function form_submitted() {
 				if (response.hasOwnProperty("token")) {
 					setCookie("token", response["token"], 30)
 					document.getElementById("message-box").innerHTML = "Вы вошли"
+					setTimeout(function(){
+						window.location = "/web"
+					},1000)
 				} else {
 					document.getElementById("message-box").innerHTML = "Вход не удался, попробйте еще раз или зарегистрируйтесь"
 				}
